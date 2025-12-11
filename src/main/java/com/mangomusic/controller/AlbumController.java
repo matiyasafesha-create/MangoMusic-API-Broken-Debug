@@ -7,7 +7,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
+@RestController
 @RequestMapping("/api/albums")
 public class AlbumController {
 
@@ -33,6 +35,17 @@ public class AlbumController {
         }
         return ResponseEntity.ok(album);
     }
+    @GetMapping("/{id}/play-count")
+    public ResponseEntity<List<Album>> getAlbumsByPlayCount(@PathVariable int id){
+        return ResponseEntity.ok(albumService.getAlbumsByPlayCount(id));
+    }
+    @GetMapping("/{id}/top-album")
+    public ResponseEntity<?> getTopAlbumByArtist (@PathVariable int id){
+        return ResponseEntity.ok(albumService.getTopAlbumByArtist(id));
+    }
+
+
+
 
     @GetMapping("/artist/{artistId}")
     public ResponseEntity<List<Album>> getAlbumsByArtist(@PathVariable int artistId) {

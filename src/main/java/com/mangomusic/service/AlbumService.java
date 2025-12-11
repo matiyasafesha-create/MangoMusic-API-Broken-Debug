@@ -31,6 +31,18 @@ public class AlbumService {
         return albumDao.getAlbumsByArtist(artistId);
     }
 
+    //getAlbumByPlayCount
+    public List<Album> getAlbumsByPlayCount(int albumID) {
+        return albumDao.getAlbumByPlayCount(albumID);
+    }
+
+    public List<Album> getTopAlbumByArtist(int artistID){
+        return albumDao.getTopTenAlbum(artistID);
+    }
+
+
+
+
     public List<Album> getAlbumsByGenre(String genre) {
         return albumDao.getAlbumsByGenre(genre);
     }

@@ -2,21 +2,38 @@ package com.mangomusic.model;
 
 public class Album {
 
-    private Integer albumId;  // Changed from int
-    private Integer artistId;  // Changed from int
+    private Integer albumId;
+    private Integer artistId;
     private String title;
-    private Integer releaseYear;  // Changed from int
+    private Integer releaseYear;
     private String artistName;
+    private Integer totalPlays;
 
     public Album() {
     }
 
-    public Album(Integer albumId, Integer artistId, String title, Integer releaseYear, String artistName) {
+    public Album(Integer albumId, String title, String artistName, Integer totalPlays) {
+        this.albumId = albumId;
+        this.title = title;
+        this.artistName = artistName;
+        this.totalPlays = totalPlays;
+    }
+
+    public Album(Integer albumId, Integer artistId, String title, Integer releaseYear, String artistName, Integer totalPlays) {
         this.albumId = albumId;
         this.artistId = artistId;
         this.title = title;
         this.releaseYear = releaseYear;
         this.artistName = artistName;
+        this.totalPlays = totalPlays;
+    }
+
+    public Integer getTotalPlays() {
+        return totalPlays;
+    }
+
+    public void setTotalPlays(Integer totalPlays) {
+        this.totalPlays = totalPlays;
     }
 
     public Integer getAlbumId() {
@@ -62,11 +79,12 @@ public class Album {
     @Override
     public String toString() {
         return "Album{" +
-                "albumId=" + albumId +
+                "' albumId=" + albumId +
                 ", artistId=" + artistId +
                 ", title='" + title + '\'' +
                 ", releaseYear=" + releaseYear +
                 ", artistName='" + artistName + '\'' +
+                ",TotalPlays='" + totalPlays +
                 '}';
     }
 }

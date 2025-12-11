@@ -91,6 +91,81 @@ public class AlbumDao {
         return albums;
     }
 
+    public List<Album> getTopTenAlbum(int artistId){
+        List<Album> albums = new ArrayList<>();
+        String query = "SELECT \n" +
+                "    al.album_id,\n" +
+                "    al.artist_id,\n" +
+                "    al.release_year,\n" +
+                "    al.title AS title,\n" +
+                "    ar.name AS artist_name,\n" +
+                "    COUNT(alp.play_id) AS play_count\n" +
+                "FROM albums al\n" +
+                "JOIN artists ar ON al.artist_id = ar.artist_id\n" +
+                "LEFT JOIN album_plays alp ON alp.album_id = al.album_id\n" +
+                "WHERE al.artist_id = ?\n" +
+                "GROUP BY al.album_id, al.title, ar.name\n" +
+                "ORDER BY play_count desc";
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+
+            statement.setInt(1, artistId);
+
+
+            try (ResultSet results = statement.executeQuery()) {
+                while (results.next()) {
+                    Album album = new Album(results.getInt("album_id"),
+                            results.getInt("artist_id"),
+                            results.getString("title"),
+                            results.getInt("release_year"),
+                            results.getString("artist_name"),
+                            results.getInt("play_count"));
+                    albums.add(album);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error getting albums by artist", e);
+        }
+        return albums;
+    }
+
+
+    public List<Album> getAlbumByPlayCount(int albumID){
+        List<Album> albums = new ArrayList<>();
+        String query = """
+                     SELECT 
+           al.album_id,
+            al.title AS album_title,
+            ar.name AS artist_name,
+            COUNT(alp.play_id) AS total_plays
+        FROM albums al
+        JOIN artists ar ON al.artist_id = ar.artist_id
+        LEFT JOIN album_plays alp ON alp.album_id = al.album_id
+        WHERE al.album_id = ?
+        GROUP BY al.album_id, al.title, ar.name
+    """;
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+
+            statement.setInt(1, albumID);
+
+            try (ResultSet results = statement.executeQuery()) {
+                while (results.next()) {
+                    Album album = new Album(results.getInt("album_id"),
+                            results.getString("album_title"),
+                            results.getString("artist_name"),
+                            results.getInt("total_plays"));
+                    albums.add(album);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error getting albums by artist", e);
+        }
+        return albums;
+    }
+
     public List<Album> getAlbumsByGenre(String genre) {
         List<Album> albums = new ArrayList<>();
         String query = "SELECT al.album_id, al.artist_id, al.title, al.release_year, ar.name as artist_name " +
