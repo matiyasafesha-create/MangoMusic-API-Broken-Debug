@@ -3,9 +3,13 @@ package com.mangomusic.service;
 import com.mangomusic.dao.UserDao;
 import com.mangomusic.model.User;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class UserService {
@@ -24,16 +28,24 @@ public class UserService {
         return userDao.getUserById(userId);
     }
 
+    public Optional<Map<String, Object>> getUserByGenre (int userID){
+        return userDao.getUsersFavoriteGenre(userID);
+    }
+
     public List<User> searchUsers(String searchTerm) {
         if (searchTerm == null || searchTerm.trim().isEmpty()) {
             return getAllUsers();
         }
         return userDao.searchUsers(searchTerm);
     }
+    public Map<String, Object> getListeningStreak (int user_Id){
+        return userDao.getUserPlayDates(user_Id);
+    }
 
     public List<User> getUsersByCountry(String country) {
         return userDao.getUsersByCountry(country);
     }
+
 
     public List<User> getUsersBySubscriptionType(String subscriptionType) {
         return userDao.getUsersBySubscriptionType(subscriptionType);

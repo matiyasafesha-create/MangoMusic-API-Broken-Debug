@@ -1,12 +1,14 @@
 package com.mangomusic.dao;
 
+import com.mangomusic.model.ReportResult;
 import com.mangomusic.model.User;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.sql.Date;
+import java.time.LocalDate;
+import java.util.*;
 
 @Repository
 public class UserDao {
@@ -141,6 +143,40 @@ public class UserDao {
 
         return users;
     }
+    public Optional<Map<String,Object>> getUsersFavoriteGenre(int user_ID){
+//        List<User> users = new ArrayList<>();
+        String query =
+                "SELECT" +
+                "    ar.primary_genre AS favorite_genre," +
+                "    COUNT(alp.play_id) AS plays_in_genre" +
+                "FROM album_plays alp" +
+                "JOIN albums al ON alp.album_id = al.album_id" +
+                "JOIN artists ar ON al.artist_id = ar.artist_id" +
+                "WHERE alp.user_id = ?" +
+                "GROUP BY ar.primary_genre" +
+                "ORDER BY plays_in_genre DESC, ar.primary_genre ASC" +
+                "LIMIT 1";
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+
+            statement.setInt(1,user_ID);
+
+            try (ResultSet rs = statement.executeQuery()) {
+                if (rs.next()) {
+                    Map<String, Object> result = new HashMap<>();
+                    result.put("favoriteGenre", rs.getString("favorite_genre"));
+                    result.put("playsInGenre", rs.getInt("plays_in_genre"));
+                    return Optional.of(result);
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error getting user's favorite genre", e);
+        }
+
+        return Optional.empty();
+    }
 
     public User createUser(User user) {
         String query = "INSERT INTO users (username, email, signup_date, subscription_type, country) " +
@@ -176,8 +212,6 @@ public class UserDao {
 
         try (Connection connection = dataSource.getConnection();
              PreparedStatement statement = connection.prepareStatement(query)) {
-
-
 
             statement.setString(1, user.getUsername());
             statement.setString(2, user.getEmail());
@@ -227,5 +261,34 @@ public class UserDao {
         user.setSubscriptionType(results.getString("subscription_type"));
         user.setCountry(results.getString("country"));
         return user;
+    }
+    public List<LocalDate> getUserPlayDates (int userId){
+
+        String sql = """
+        SELECT DISTINCT DATE(played_at) AS play_date
+        FROM album_plays
+        WHERE user_id = ?
+          AND completed = true
+        ORDER BY play_date DESC
+    """;
+
+        List<LocalDate> dates = new ArrayList<>();
+
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, userId);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    dates.add(rs.getDate("play_date").toLocalDate());
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error fetching play dates", e);
+        }
+
+        return dates;
     }
 }

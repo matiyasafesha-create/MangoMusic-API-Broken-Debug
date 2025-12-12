@@ -6,7 +6,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/users")
@@ -38,6 +41,20 @@ public class UserController {
 
         return ResponseEntity.ok(userService.getAllUsers());
     }
+
+
+    //Optional<Map<String,Object>>
+    @GetMapping("/{id}/favorite-genre")
+    public ResponseEntity<Optional<Map<String, Object>>> getFavoriteGenre(@PathVariable int id) {
+        return ResponseEntity.ok(userService.getUserByGenre(id));
+    }
+
+    @GetMapping("/{id}/listening-streak")
+    public ResponseEntity <Map<String, Object>> getListeningStreak(@PathVariable int id){
+        return ResponseEntity.ok(userService.getListeningStreak(id));
+    }
+
+
 
     @GetMapping("/{id}")
     public ResponseEntity<User> getUserById(@PathVariable int id) {
